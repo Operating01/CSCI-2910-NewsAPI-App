@@ -22,3 +22,6 @@ A console app that allows users to save their favorite news sources or scientifi
 - to sort by publish date, relevancy, or popularity,
 - (IF TIME PERMITS) option to sort by country and language
 - if user is searching by /top-headline, then convert domains (abc.com) to sources (abc)
+
+## Etc:
+- Look into ways of saving a user's endpoint between program visits (for now, set endpoint to /everything upon startup)
