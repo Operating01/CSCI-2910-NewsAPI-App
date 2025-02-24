@@ -23,3 +23,4 @@ class Overview(BaseModel):
     status: str
     totalResults: int
     articles: List[Article]
+    message: Optional[str] = None

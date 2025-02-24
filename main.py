@@ -51,19 +51,71 @@ def search():
             # i = 1
 
 def domains():
-    #session.execute(insert(Domains).values(domain = "verge.com", include = "include"))
-   # session.commit()
-    doms = session.execute(select(Domains)).scalars()
-    i = 1
-    domlist = []
-    for value in doms:
-        print(f"{i}. {value}")
-        domlist.append(value.domain)
-    try:
-        choice = input("Choose an option based on the number to update or delete(or type exit to quit): ")
-        option = domlist[int(choice)]
-    except IndexError:
-        print("ERR: Not a valid option. (DO-IND-ERR)")
+    while True:
+        doms = session.execute(select(Domains)).scalars()
+        i = 1
+        domlist = []
+        dom = ""
+        # Prints all saved domains, and stores them in domlist to be selected in the menu, based on their index in domlist.
+        for value in doms:
+            print(f"{i}. {value}")
+            domlist.append(value.domain)
+        while True:
+            try:
+                choice = input("Choose an option based on the number to update or delete(or type exit to quit): ")
+                dom = domlist[int(choice)-1]
+                break
+            except IndexError:
+                print("ERR: Not a valid option. (DO-IND-ERR)")
+        print(f"What would you like to change on {dom}?: ")
+        # Users can either change the domains name, change it's status, or delete it.
+        print("1. Change domain name\n2. Change inclusion status\n3. Delete domain")
+        choice = input("Choose an option: ")
+        if choice == "1":
+            newdom = input(f"Input a new name for {dom}: ")
+            result = requests.get(f"{base_api_url}&domains={newdom}&apiKey={apikey}")
+            # Checks if the API recognizes the domain.
+            if result.status_code == 200:
+                data = result.json()
+                articles = Overview(**data)
+                if articles.totalResults == 0:
+                    print("ERR: This domain name is not valid. Please re-enter a new name. (DO-RENAME-ERR)")
+                else:
+                    # Changes the domain if user says 'y'
+                    session.execute(update(Domains).where(Domains.domain == dom).values({Domains.domain: newdom}))
+                    decision = f"ALERT: You are about to change {dom} to {newdom}. Do you confirm this choice?(Y/N): "
+                    if decision == "Y" or decision == "y":
+                        session.commit()
+                        print("Update successful! \n")
+                    elif decision == "N" or decision == "n":
+                        print("Update aborted...")
+                    else:
+                        print("ERR: Not a valid choice. (DO-UPDEC-ERR)")
+        elif choice == "2":
+            # NEED TO GRAB INCLUSION STATUS TO DISPLAY
+            print(f"{dom}'s status is currently set to ")
+            print(f"What would you like to change {dom}'s inclusion status to?: ")
+            print("1. Include \n2. Exclude\n3. Store\n4. Exit\n")
+            incchoice = input("Choose an option: ")
+            if incchoice == "1":
+                session.execute(update(Domains).where(Domains.domain == dom).values({Domains.include: "include"}))
+                session.commit()
+                print("Status now set to include!")
+            elif incchoice == "2":
+                session.execute(update(Domains).where(Domains.domain == dom).values({Domains.include: "exclude"}))
+                session.commit()
+                print("Status now set to exclude!")
+            elif incchoice == "3":
+                session.execute(update(Domains).where(Domains.domain == dom).values({Domains.include: "stored"}))
+                session.commit()
+                print("Status now set to stored!")
+        
+
+
+
+
+
+
 domains()
 
 
