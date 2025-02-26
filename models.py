@@ -24,3 +24,18 @@ class Overview(BaseModel):
     totalResults: int
     articles: List[Article]
     message: Optional[str] = None
+
+class HeadlineSource(BaseModel):
+    id: str
+    name: str
+    description: str
+    url: HttpUrl
+    category: str
+    language: str
+    country: str
+    def __repr__(self):
+        return f"{self.name} [{self.id}]"
+
+class HeadlineOverview(BaseModel):
+    status: str
+    sources: List[HeadlineSource]
